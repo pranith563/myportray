@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script type ="text/javascript" src = "jquery-3.3.1.js"></script>
+<script type ="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">></script>
 <script >
 $(document).ready(function(){
 	$("p").hide();
@@ -18,13 +18,20 @@ $(document).ready(function(){
     		  $(".input-2").show();
    			  $("a").show();
    			});
-   $("a").click(function()
-						{
-	   						//$.get("https://localhost:8000");
-	   						$("p").hide();
-						}	   
-   
-   )
+    $("a").click(function(event) {
+    	
+    	var Name = $(".input").val();
+    	var Pass = $(".input-2").val();
+    	//alert($(".input").val());
+    	$.post("http://localhost:5000/profilequery", {name : $(".input").val(), password : $(".input-2").val()},function(data, status)
+    			{
+    				alert("response: " + data + "\nStatus: " + status);
+    			});
+    	//window.location.replace("http://localhost:5000/profile");
+    	
+    });
+    
+  		 
 });
 </script>
 <meta charset="UTF-8">
@@ -43,8 +50,7 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 		<h1 class="para"><span class="font">Ur Portofolio</span></h1>
 		
 	</div>
-
-	<form method="post" action="myfirst.js" ></form>
+	
 	<div class="vis-3 pos-3 size-2 cont-2">
 		<div class="vis-4 pos-4 size-3 cont-3">
 			<p class="para-2"><span class="font-2">User</span></p>
@@ -66,7 +72,9 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 	 <div class="vis-9 pos-9 size-8 cont-8">
 		<a class="font-4 button vis-10 size-9" type = "submit" >LogIn</a>
 	</div>	 	
+	
 </div>
+
 
 </body>
 </html>
