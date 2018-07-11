@@ -2,13 +2,22 @@
 <html>
 <head>
 <script type ="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">></script>
-<script >
+<script type = "text/javascript">
+function ChangeUrl(page, url) {
+    if (typeof (history.pushState) != "undefined") {
+        var obj = { Page: page, Url: url };
+        history.pushState(obj, obj.Page, obj.Url);
+    } else {
+        alert("Browser does not support HTML5.");
+    }
+}
 $(document).ready(function(){
 	$("p").hide();
     $(".input").hide();
     $(".input-2").hide();
     $("a").hide();
-	var div = $("h1");
+    $("b").hide();
+    var div = $("h1");
     div.animate({height: '300px', opacity: '0.4'}, "slow");
     div.animate({width: '40px', opacity: '0.8'}, "slow");
     div.animate({height: '0px', opacity: '0.4'}, "slow");
@@ -17,20 +26,20 @@ $(document).ready(function(){
    			  $(".input").show();
     		  $(".input-2").show();
    			  $("a").show();
+   			  $("b").show();
    			});
     $("a").click(function(event) {
     	
     	var Name = $(".input").val();
     	var Pass = $(".input-2").val();
-    	//alert($(".input").val());
-    	$.post("http://localhost:5000/profilequery", {name : $(".input").val(), password : $(".input-2").val()},function(data, status)
-    			{
-    				alert("response: " + data + "\nStatus: " + status);
-    			});
-    	window.location.replace("http://localhost:5000/profile");
-    	
+    	$.post("http://localhost:5000/profilequery", {name : $(".input").val(), password : $(".input-2").val()},function(data,status){
+    		ChangeUrl('profile', 'profile');
+    		$("html").html(data);
+    	});
     });
-    
+    $("b").click(function(event) {
+    	window.location.replace("http://localhost:5000/signup");
+    });
   		 
 });
 </script>
@@ -70,7 +79,8 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 	</div>
 
 	 <div class="vis-9 pos-9 size-8 cont-8">
-		<a class="font-4 button vis-10 size-9" type = "submit" >LogIn</a>
+		<a class="font-4 button vis-10 size-9" type = "submit" >Log In</a>
+		<b class="font-4 button vis-10 size-9" >Sign up</b>
 	</div>	 	
 	
 </div>
