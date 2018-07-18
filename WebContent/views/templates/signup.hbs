@@ -7,8 +7,10 @@
 <script type = "text/javascript">
 $(document).ready(function(){
 	$("#formSubmit").click(function(event){
-	$.post("http://localhost:5000/createprofile", {name : $("#muser").val(), password : $("#mpass").val()},function(data,status){
-		alert("account created successfully");
+	$.post("http://localhost:5000/createuser", {name : $("#muser").val(), password : $("#mpass").val()},function(data,status){
+		alert("account created successfully, login to view profile");
+		});
+	window.location.replace("http://localhost:5000/Login");
 	});
 });
 
@@ -31,18 +33,18 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 </div>
 <div class="v3 ps3 s3 c2">
 <div class="v4 ps4 s4 c3">
-<p class="p2 f2" id="muser">Username</p>
+<p class="p2 f2" >Username</p>
 </div>
 <div class="v5 ps5 s5 c4">
-<input type="text" name="text" class="input">
+<input type="text" name="text" class="input" id="muser">
 </div>
 </div>
 <div class="v6 ps6 s6 c5">
 <div class="v7 ps7 s7 c6">
-<p class="p3 f3" id="#mpass">Password</p>
+<p class="p3 f3" >Password</p>
 </div>
 <div class="v8 ps8 s8 c7">
-<input type="text" name="text" class="input2">
+<input type="text" name="text" class="input2" id="mpass">
 </div>
 </div>
 <div class="v9 ps9 s9 c8">

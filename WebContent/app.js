@@ -8,6 +8,7 @@ var expressSession = require('express-session');
 var path = require('path');
 var routes = require('./routes/index');
 
+
 var app = express();
 
 //Engine setup
@@ -24,9 +25,10 @@ app.use(express.static(__dirname + '/public'));
 app.use('/', routes);
 
 app.listen(5000, function() {
+	
   console.log('Server running at http://127.0.0.1:5000/');
-});
 
+});
 
 /*
 //catch 404 and forward to error handler

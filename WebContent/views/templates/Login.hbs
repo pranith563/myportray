@@ -32,10 +32,17 @@ $(document).ready(function(){
     	
     	var Name = $(".input").val();
     	var Pass = $(".input-2").val();
-    	$.post("http://localhost:5000/profilequery", {name : $(".input").val(), password : $(".input-2").val()},function(data,status){
-    		ChangeUrl('profile', 'profile');
-    		$("html").html(data);
+    	var expected_url;
+    	var orig_url ="http://localhost:5000/profile?id="+Name;
+    	$.post("http://localhost:5000/authquery", {name : $(".input").val(), password : $(".input-2").val()},function(data,status){
+    		 expected_url = "http://localhost:5000"+data;
+    		 //if(expected_url === orig_url)
+    	     	window.location.replace("http://localhost:5000"+data);
+    	    //else
+    	    //	alert("Invalid Login, username or password Incorrect");
     	});
+    	
+    	
     });
     $("b").click(function(event) {
     	window.location.replace("http://localhost:5000/signup");

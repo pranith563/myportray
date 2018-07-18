@@ -1,5 +1,6 @@
 var mongo = require('mongodb').MongoClient;
 var mongo_url = "mongodb://localhost:27017/";
+
 module.exports = {
 		authenticate: function (req,Username, Password,res)
 		{
@@ -18,8 +19,11 @@ module.exports = {
 							console.log("Log in successful-" + Username);
 							console.log("authenticated!");
 							req.session.authenticated=true;
-							res.redirect('/profile?id='+Username);
-							
+							console.log("User updated or not : " + result.isUpdated);
+							if(result.isUpdated===true)
+								res.send('/profile?id='+Username);
+							else
+								res.send('/completeProfile?id='+Username);
 						}
 						else
 						{
@@ -29,5 +33,22 @@ module.exports = {
 				});
 		});
 
+	},
+	
+	createProfile: function(req,Username, Password,res)
+	{
+		mongo.connect(mongo_url,{ useNewUrlParser: true }, function(err,db){
+			if(err) throw err;
+			else
+			{
+				var mdb = db.db("webdb");
+				var mquery = {username: Username,password: Password};
+				mdb.collection("userCredentials").insert(mquery);
+				console.log(" account created for user : " + Username);
+				res.redirect('/Login');
+			}
+			
+		});
 	}
+	
 };
