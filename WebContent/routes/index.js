@@ -20,14 +20,22 @@ db.once('open', function() {
 var credential_schema  = mongoose.Schema({
 	username: String,
 	password: String,
-	isUpdated: Boolean
+	isUpdated: Boolean,
+	profile_id: Number
 },{collection: 'userCredentials', versionKey: false });
 
 var Credential = mongoose.model('Credential', credential_schema);
 
+var pid_schema = mongoose.Schema({
+	last_inserted : Number
+},{collection: 'id', versionKey: false});
+
+var pid_model = mongoose.model('pid_model',pid_schema);
+
 //Initialise Profile schema
 var profile_schema = mongoose.Schema({
-	Name : { fname: String, lname: String},
+	_id : Number,
+	Name : {fname: String, lname: String},
 	nickname: String,
 	DOB: Date,
 	location: String,
@@ -36,7 +44,7 @@ var profile_schema = mongoose.Schema({
 	profile_pic: { data: Buffer, contentType: String }
 },{collection:'profiledata',versionKey:false});
 
-var profile = mongoose.model('profile',profile_schema); 
+var profile_model = mongoose.model('profile_model',profile_schema); 
 
 //Initialise a router
 var router = express.Router();
@@ -45,6 +53,8 @@ var router = express.Router();
 var auth = require('./authenticator');
 
 var sess;
+
+	//Rendering the web pages
 router.get('/', function(req, res){
 	res.render('templates/home');
 });
@@ -58,18 +68,59 @@ router.get('/signup',function(req,res){
 });
 
 router.get('/completeProfile',function(req,res){
-	res.render('templates/completeProfile');
+	if(req.session && req.session.authenticated){
+		if(sess.user)
+		{
+			Credential.findOne({'username' : sess.user}, 'isUpdated', function(err, user){
+				if(user.isUpdated)
+					res.redirect('/profile');
+				else
+					res.render('templates/completeProfile');
+			});
+		}
+	}
+	else
+		res.redirect('/Login');
 });
+
+router.get('/users/image', function(req,res){
+	if(req.session && req.session.authenticated){
+		if(sess.user)
+		{
+			Credential.findOne({'username' : sess.user}, 'profile_id', function(err, userdata){
+				var id = userdata.profile_id;
+				profile_model.findById(id, function(err, doc){
+					res.setHeader('content-type', doc.profile_pic.contentType);
+					res.send(doc.profile_pic.data);
+				});
+			});
+		}
+	}	
+});	
 
 
 router.get('/profile', function(req,res){
 	if(req.session && req.session.authenticated){
 		if(sess.user)
 		{
-			var profile = req.query.id;
-			console.log("accessing profile page " + profile);
-			res.render('templates/profile');
-			//res.render('templates/myprofile', {user : 'sravya', Location: 'unknown', dob: '11-06-97', status: 'single', friend: 'pranith'});
+			console.log("accessing profile data " + sess.user);
+			
+			Credential.findOne({'username' : sess.user}, 'profile_id', function(err, userdata){
+				var id = userdata.profile_id;
+				profile_model.findById(id, function(err, doc){
+
+					res.render('templates/profile',{
+													user : sess.user,
+													name : doc.nickname,
+													dob	 : doc.DOB,
+													location : doc.location,
+													user_image : "http://localhost:5000/users/image"
+						
+					});
+					
+				});
+				
+			});
 		}
 	}
 	else
@@ -77,53 +128,78 @@ router.get('/profile', function(req,res){
 });
 
 
+
+
 		/**New profile**/
 
 router.post('/createuser',function(req, res){
 	
-	var data = {'username': req.body.name, 'password': req.body.password, 'isUpdated': false};
-	var newUser = new Credential(data);
-	newUser.save(function(err, data){
-		if(err) return handleError(err);
+	var profile_id;
+	pid_model.findOne({},'last_inserted',function(err,data){
+	
+		profile_id = data.last_inserted + 1;
+	
+		var query = {last_inserted : parseInt(profile_id, 10)-1};
+		pid_model.findOneAndUpdate(query, {last_inserted : parseInt(profile_id, 10)}, function(err,affected,resp){});
+	
+	
+		var data = {'username': req.body.name, 
+					'password': req.body.password, 
+					'isUpdated': false,
+					'profile_id': profile_id};
+		
+		var newUser = new Credential(data);
+		newUser.save(function(err, data){});
+		console.log(" account created for user : " + req.body.name);
 	});
-	console.log(" account created for user : " + req.body.name);
-	//auth.createProfile(req,Username,Password,res);
-
+	
 });
 
 	/**Profile completion**/
 
 
-
 router.post('/updateProfile',upload.single('picture'),function(req,res){
 	
-	console.log('accessing updateProfile');
-	var user = sess.user;
-	var img_path = req.file.path;
-	var image_data = fs.readFileSync(img_path);
+	if(req.session && req.session.authenticated){
+		if(sess.user)
+		{
+			
+			Credential.findOne({'username' : sess.user}, 'profile_id', function(err, userdata){
+			
+				console.log('accessing:- updateProfile');		
+				var user = sess.user;
+				var img_path = req.file.path;
+				var image_data = fs.readFileSync(img_path);
+				var image = {
+						contentType : 'image/png',
+						data : image_data
+				};
 	
-	console.log("Image is being inserted");
+				console.log(userdata.profile_id);
+				
+				var data = {'_id': userdata.profile_id,
+							'Name':{'fname':req.body.fname,'lname':req.body.lname},
+							'DOB':(req.body.dd+'-'+req.body.mm+'-'+req.body.yyyy),
+							'location':(req.body.city+","+req.body.state+","+req.body.country),
+							'nickname':req.body.nname,
+							'profile_pic':image
+							};
+
+				var profiledata = new profile_model(data);
+				profiledata.save(function(err,data){
+					if(err) return handleError(err);
+				});
+				console.log("Profile data inserted for user : "+ user);
 	
-	var image = {
-			contentType : 'image/png',
-			data : image_data
-	};
+				var query = {username : user};
+				Credential.update(query,{isUpdated : true},function(err,affected,resp){});
 	
-	var data = {'Name':{'fname':req.body.fname,'lname':req.body.lname},'DOB':(req.body.dd+'-'+req.body.mm+'-'+req.body.yyyy),'location':(req.body.city+","+req.body.state+","+req.body.country),'nickname':req.body.nname,'profile_pic':image};
-	//console.log("username : " +  username +" fname : " +  data.fname);
-	
-	var profiledata = new profile(data);
-	profiledata.save(function(err,data){
-		if(err)return handleError(err);
-	});
-	console.log("Profile data inserted for user : "+ user);
-	
-	var query = {username : user};
-	Credential.update(query,{isUpdated : true},function(err,affected,resp){
-		if(err)return handleError(err);
-	});
-	
-	res.redirect('/profile?id='+user);
+				res.redirect('/profile');
+			});
+		}
+	}
+	else
+		res.redirect('/Login');
 });
 
 
@@ -155,9 +231,9 @@ router.post('/authquery', function(req,res){
 			//userdata.isUpdated = true;
 			console.log(userdata.isUpdated);
 			if(userdata.isUpdated)
-				res.send('/profile?id='+Username);
+				res.send('/profile');
 			else
-				res.send('/completeProfile?id='+Username);
+				res.send('/completeProfile');
 		}
 		else
 		{
@@ -169,10 +245,8 @@ router.post('/authquery', function(req,res){
 	
 });
 
-
-
-
 	/***Updating Password***/
+
 router.post('/changePassword', function(req,res){
 	//retrieve data from client
 	var query = { username: req.body.username, password: req.body.password};

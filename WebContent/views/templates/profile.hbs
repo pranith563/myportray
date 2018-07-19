@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title></title>
+<title>my Portofolio</title>
 <meta name="referrer" content="same-origin">
 <script type="text/javascript" src="js/jquery.js?5a9dcfbef655a2668e78baebeaa8dc6f41d8dabb"></script>
 <meta name="viewport" content="width=960">
@@ -38,7 +38,7 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 </p>
 </div>
 <div class="v8 ps7 s10 c6">
-<p class="p f4">Lorem ipsum dolor sit amet,</p>
+<p class="p f4"> Welcome {{ name }}</p>
 </div>
 <div class="v9 ps8 s11 c7">
 <p class="s12 f5">
@@ -77,8 +77,8 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 <div class="v25 ps24 s28 c17">
 <div class="v26 ps25 s29 c18">
 <picture class="i2 js5">
-<source srcset="icons/profile.png">
-<img src="icons/profile.png" title="Avatar" alt="profile img" class="js i">
+<source srcset={{ user_image }}>
+<img src={{ user_image }} title="Avatar" alt="profile img" class="js i">
 </picture>
 </div>
 <div class="v27 ps26 s30 c19">
@@ -89,7 +89,7 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 </picture>
 </div>
 <div class="v29 ps28 s32 c21">
-<p class="p6 f10">Lorem</p>
+<p class="p6 f10">{{ user }}</p>
 </div>
 </div>
 <div class="v30 ps29 s33 c22">
@@ -100,7 +100,7 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 </picture>
 </div>
 <div class="v32 ps31 s35 c24">
-<p class="p7 f11">Lorem ipsum</p>
+<p class="p7 f11">{{ location }}</p>
 </div>
 </div>
 <div class="v33 ps32 s36 c25">
@@ -111,7 +111,7 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 </picture>
 </div>
 <div class="v35 ps34 s38 c27">
-<p class="p8 f12">Lorem ipsum</p>
+<p class="p8 f12">{{ dob }}</p>
 </div>
 </div>
 </div>
@@ -123,7 +123,7 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 <div class="menu-content mcv4">
 <div class="v40 ps39 s43 c30">
 <div class="v41 ps40 s44 c31">
-<p class="p9 f13">Menu</p>
+<p class="p9 f13"></p>
 </div>
 </div>
 </div>
